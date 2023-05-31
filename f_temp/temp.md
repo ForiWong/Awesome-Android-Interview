@@ -1,13 +1,14 @@
-0、反射、泛型、注解、集合
-1.ArrayList和LinkedList的区别
-2. LruCache
-3. HashMap、HashTable的区别 //从线程安全性、速度
-4. 红黑树
-5. LinkedHashMap 源码解读
-6. ArrayDeque 源代码阅读
-7.java的单例创建
+1. ArrayList和LinkedList的区别
+2. HashMap、HashTable的区别 //从线程安全性、速度
+3. LinkedHashMap 源码解读
+4. ArrayDeque 源代码阅读
+5. LruCache
+6. 红黑树
+
+7. java的单例创建
 8.String a=“ abc”;String b=“ abc”; 创建了几个对象 
 //栈存放引用变量 堆存在new出来的对象，并且堆划分出一部分作为常量池
+反射、泛型、注解
 
 1.HTTP与HTTPS有什么区别？(计算机基础\网络面试题.md)
   断点续传实现？
