@@ -19,9 +19,9 @@
 4.Android进程优先级
 5.ThreadPoolExecutor 线程池
 6.Android Lock同步
-7.Handler
-8.Handler防止内存泄露
-9.Handler Looper 工作原理
+    7.Handler
+    8.Handler防止内存泄露
+    9.Handler Looper 工作原理
 10.ThreadLocal源码
 11.Message //static Message sPool,指向队列前头的可用Message对象
 
