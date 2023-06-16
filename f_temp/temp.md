@@ -58,25 +58,30 @@
     19.动画、属性动画 Animator
     20.屏幕适配的处理方案
     21.Android版本特性适配
-？    22.Android下解决滑动冲突的常见思路是什么?
+    22.Android下解决滑动冲突的常见思路是什么?
     23.如何统一设置多个View的android:textSize和android:textColor
 
-？0.ClassLoader 类加载器
+0.ClassLoader 类加载器
 1.JVM 可达性分析中哪些对象可以作为根节点
 2.JVM的GC算法
 3.Android内存泄露研究，什么情况下造成内存泄露
-？4.图片过大导致OOM
+4.图片过大导致OOM
 5.SoftReference跟WeakRefrence的区别
 6.什么是ANR，如何规避
 7.如何动态加载apk文件(未安装)的类
 8.布局优化
-？9.ActivityThread //Android应用的主线程
-？10.电量优化
+9.ActivityThread //Android应用的主线程
+10.电量优化
 11.启动优化
 
 0.MVP，MVVM，MVC解释和实践
-？1.一些常用的开源库 Glide RxJava Retrofit OkHttp 
-？2.模块化、组件化、热更新、插件化实现原理。
+架构设计
+Jetpack
+kotlin 协程
+1.一些常用的开源库 Glide RxJava Retrofit OkHttp 
+2.模块化、组件化、热更新、插件化实现原理。
+
+BLE、BT、WIFI 开发技术、项目经验
 
 1.Socket连接成功后，怎么获取服务器的ip和域名
 2.如何打开手机中的蓝牙功能、申请权限
