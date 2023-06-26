@@ -1,0 +1,28 @@
+1、序列化与反序列化
+内存中的对象 <---> 二进制数据
+
+2、在 Java 中使用对象流来完成序列化和反序列化。
+ObjectOutputStream:通过 writeObject()方法做序列化操作
+ObjectInputStream:通过 readObject() 方法做反序列化操作
+
+3、为什么要序列化？
+（持久化、网络传递、进程间传递）
+1）永久性保存对象，保存对象的字节序列到本地文件中；
+2）通过序列化对象在网络中传递对象；
+3）通过序列化在进程间传递对象。
+4）服务器钝化。
+
+4、实现序列化的方法
+（Parcelable接口复杂，但是效率高。）
+Android中实现序列化有两个选择：
+1）实现Serializable接口（是JavaSE本身就支持的），使用简单。
+Serializable是由Java提供的序列化接口，它是一个空接口。
+这种序列化是通过反射机制从而削弱了性能，这种机制也创建了大量的临时对象从而引起GC频繁回收调用资源。
+
+2）实现Parcelable接口，是Android特有功能，实现稍微复杂，但是效率高。
+运用真实的序列化处理代替反射，大量的引入代码但是速度会远快于Serializable。所以优先选择Parcelable。
+
+5、选择序列化方法的原则
+1）在使用内存的时候，Parcelable比Serializable性能高，所以推荐使用Parcelable。
+2）Serializable在序列化的时候会产生大量的临时变量，从而引起频繁的GC。
+3）Parcelable不能使用在要将数据存储在磁盘上的情况，尽管Serializable效率低点，但此时还是建议使用Serializable 。

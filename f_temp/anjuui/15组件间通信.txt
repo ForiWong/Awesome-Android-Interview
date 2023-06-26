@@ -1,0 +1,15 @@
+1、使用Intent进行传值: (Activity与Activity之间)，这个也可以有在进程间通信。传值有限制啦。
+2、使用Binder传值 (Activity与Service之间)。
+3、使用Broadcast广播传值，其实就是使用Broadcast的发送和接受实现通信。当然，有时候是大材小用了，看需求了，还有应用内广播。
+4、使用Application、类静态变量、SharePreference、文件存储、数据库、ContentProvider等。
+ContentProvider它主要的作用是：实现各个应用程序之间的（跨应用）数据共享。
+5、使用接口：定义一个接口，需要关注该事件的地方来实现这个接口。然后事件触发的地方来注册/取消注册这些对该事件感兴趣的控件，也就是就是观察者模式，这样做的问题也是显而易见的，就是不同组件之间往往耦合的比较厉害。
+6、EventBus:EventBus是发布/总线模式经过优化的Android系统类库，很灵活了，现在也不再是使用反射机制了。
+7、android与主线程通过Handler通信，如果是其他的子线程使用这个就显得有点重了。
+8、进程间通信方式
+（1）使用 Intent：在一个进程中启动了另一个进程的 Activity，Service 和 Receiver ，可以在 Bundle 中附加要传递的数据通过 Intent 发送出去。
+（2）使用文件共享；
+（3）使用 Messenger：Messenger 是一种轻量级的 IPC 方案，它的底层实现是 AIDL，可以在不同进程中传递 Message 对象，
+（4）使用 AIDL
+（5）使用 ContentProvider
+（6）使用 Socket

@@ -1,0 +1,39 @@
+1、广播，是一个全局的监听器，属于Android四大组件之一。Android广播分为两个角色：广播发送者、广播接收者。
+2、监听/接收应用App发出的广播消息，并做出响应。
+3. 应用场景
+Android不同组件间的通信（含 ：应用内 / 不同应用之间）；
+多线程通信；
+与 Android 系统在特定情况下的通信；如：电话呼入时、网络可用时。
+4. 实现原理
+Android中的广播使用了设计模式中的观察者模式：基于消息的发布/订阅事件模型。因此，Android将广播的发送者和接收者解耦，使得系统方便集成，更易扩展。
+5、模型中有3个角色：
+消息订阅者（广播接收者）
+消息发布者（广播发布者）
+消息中心（AMS，即Activity Manager Service）
+6、（1）自定义广播接收者BroadcastReceiver，继承BroadcastReceivre基类。
+必须复写抽象方法onReceive()方法。
+广播接收器运行在 UI 线程，因此，onReceive()方法不能执行耗时操作，否则将导致ANR。
+
+（2）广播接收器注册
+静态注册：在AndroidManifest.xml里通过<receive>标签声明。
+动态注册：在代码中调用Context.registerReceiver（）方法
+动态广播最好在Activity 的 onResume()注册、onPause()注销 unregisterReceiver(mBroadcastReceiver);
+在onResume()注册、onPause()注销是因为onPause()在App死亡前一定会被执行，从而保证广播在App死亡前一定会被注销，从而防止内存泄露。
+ 
+（3）广播发送者向AMS发送广播
+广播的发送：广播是用”意图（Intent）“标识”，通过sendBroadcast（）方法发送出去。
+广播的类型主要分为5类：
+	普通广播（Normal Broadcast）
+	系统广播（System Broadcast）
+	有序广播（Ordered Broadcast）
+	粘性广播（Sticky Broadcast）
+	App应用内广播（Local Broadcast）
+
+7、有序广播：发送出去的广播被广播接收者按照先后顺序接收。
+广播接受者接收广播的顺序规则，按照Priority属性值从大-小排序。
+Priority属性相同者，动态注册的广播优先；
+先接受到的可以进行拦截。
+
+8、App应用内广播（Local Broadcast）
+App应用内广播可理解为一种局部广播，广播的发送者和接收者都同属于一个App。
+相比于全局广播（普通广播），App应用内广播优势体现在：安全性高 & 效率高。

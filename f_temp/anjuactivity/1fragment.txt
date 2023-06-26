@@ -1,0 +1,23 @@
+1、Fragment是一个类似于activity的碎片，内部包含布局，有生命周期。
+起初是为适配平板而设计的。
+
+2、可以布局xml文件中使用fragment，也可以通过代码动态添加Fragment。
+getFragmentManager().beginTransaction().replace(R.id.main_layout, fragment1).commit();
+
+3、生命周期
+绑定-->初始化F-->创建F视图-->A执行onCreate回调
+onStart() --> onResume() --> onPause() --> onStop()
+销毁F视图 --> 销毁F --> 解绑。
+
+onAttach()： 完成Fragment和Activity的绑定关联，参数中的Activity即为要绑定的Activity，可以进行赋值等操作；
+onCreate() : 完成Fragment的初始化；
+onCreateView() : 加载Fragment布局，绑定布局文件，创建视图；
+onActivityCreated() : 表名与Fragment绑定的Activity已经执行完成了onCreate，可以与Activity进行交互操作。
+onStart() : Fragment变为可见状态
+onResume() : Fragment变为可交互状态
+onPause()： Fragment变为不可交互状态(不代表不可见)
+onStop(): Fragment变为不可见状态
+onDestroyView() : 销毁Fragment的有关视图，但并未和Activity解绑，可以通过onCreateView()重新创建视图。
+onDestroy() : 销毁Fragment时调用。
+onDetach() : 解除和Activity的绑定。Fragmen销毁最后一步
+onSaveInstanceState()：保存当前Fragment的状态。记录一些数据，比如EditText键入的文本，即使Fragment被回收又重新创建，一样能恢复EditText之前键入的文本。

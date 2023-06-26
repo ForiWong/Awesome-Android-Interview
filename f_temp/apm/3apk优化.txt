@@ -1,0 +1,23 @@
+1.好处
+减少应用程序安装包的大小，不仅仅减少了用户的网络数据流量，还减少了下载等待的时间。
+2.思路
+通常来说，减少程序安装包的大小有两条规律：要么减少程序资源的大小，要么就是减少程序的代码量。
+3.压缩代码
+开启混淆 minifyEnabled  true。
+android {
+  buildTypes {
+    release {
+minifyEnabled true//false //true//开启混淆
+shrinkResources true//false//true//开启资源压缩
+zipAlignEnabled true//开启Zipalign优化
+proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+}
+4.精简类库，jar包
+5.精简 so 资源：微信、微博、QQ 只保留了 armeabi，Facebook、Twitter、Instagram 只保留了 armeabi_v7a。
+6.安装包拆分：由于国内应用分发市场的现状，这一条几乎没有办法执行。
+7.支持插件化
+8.有损压缩图片
+9.使用更小的图片
+10. 尽量不要在项目中使用帧动画

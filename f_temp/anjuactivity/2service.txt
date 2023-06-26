@@ -1,0 +1,41 @@
+1、Service(服务)是一个一种可以在后台执行长时间运行操作而没有用户界面的应用组件。
+Service则是android系统中的组件，一般情况下它运行于主线程中，因此在Service中是不可以执行耗时操作的，否则系统会报ANR异常。如果需要让Service执行耗时任务，可在Service中开启单独线程去执行。
+
+2、启动状态通过startService()启动服务，无限期运行；通常是单一操作，不返回结果。
+服务可由其他应用组件启动（如Activity），服务一旦被启动将在后台一直运行，即使启动服务的组件（Activity）已销毁也不受影响。 
+虽然不返回结果，还是可以使用eventbus来交互。
+
+
+3、绑定状态调用bindService()绑定服务；允许组件与服务进行交互、发送请求、获取结果。也可跨进程IPC执行这些操作。组件与服务解绑后，服务被销毁。
+
+4、自定义类继承Service基类自定义而来； 在Manifest.xml清单文件中声明。
+
+接着重写onCreate、onStartCommand、onDestroy三个主要的生命周期方法。
+
+（1）onBind(); 当另一个组件想通过调用 bindService() 与服务绑定（例如执行RPC）时，系统将调用此方法。在此方法的实现中，必须返回 一个IBinder 接口的实现类，供客户端用来与服务进行通信。
+无论是启动状态还是绑定状态，此方法必须重写，但在启动状态的情况下可以直接返回 null。
+
+(2)onCreate();首次创建服务时，系统将调用此方法来执行一次性设置程序（在调用 onStartCommand() 或onBind() 之前。如果服务已在运行，则不会调用此方法，该方法只调用一次。
+
+(3)onStartCommand();当另一个组件（如 Activity）通过调用 startService() 请求启动服务时，系统将调用此方法。一旦执行此方法，服务即会启动并可在后台无限期运行。 如果自己实现此方法，则需要在服务工作完成后，通过调用 stopSelf() 或 stopService() 来停止服务。
+（在绑定状态下，无需实现此方法。）
+每次通过startService()方法启动Service时都会被回调
+
+
+(4)onDestroy();当服务不再使用且将被销毁时，系统将调用此方法。服务应该实现此方法来清理所有资源，如线程、注册的侦听器、接收器等，这是服务接收的最后一个调用。
+
+5、生命周期：第一次调用startService方法时，onCreate方法、onStartCommand方法将依次被调用，而多次调用startService时，只有onStartCommand方法被调用，最后我们调用stopService方法停止服务时onDestory方法被回调，这就是启动状态下Service的执行周期。
+
+6、绑定服务是Service的另一种变形，当Service处于绑定状态时，其代表着客户端-服务器接口中的服务器。当其他组件（如Activity）绑定到服务时，组件（如Activity）可以向Service（也就是服务端）发送请求，或者调用Service（服务端）的方法，此时被绑定的Service（服务端）会接收信息并响应，甚至可以通过绑定服务进行执行进程间通信(即IPC，这个后面再单独分析)。
+
+与启动服务不同的是绑定服务的生命周期通常只在为其他应用组件(如Activity)服务时处于活动状态，不会无限期在后台运行，也就是说宿主(如Activity)解除绑定后，绑定服务就会被销毁。
+实际上我们必须提供一个IBinder接口的实现类，该类用以提供客户端用来与服务进行交互的编程接口，该接口可以通过三种方法定义接口：扩展 Binder 类、使用 Messenger、使用 AIDL。
+
+
+bindService(Intent service, ServiceConnection conn, int flags) 
+该方法执行绑定服务操作，其中Intent是我们要绑定的服务(也就是LocalService)的意图，而ServiceConnection代表与服务的连接。
+
+unbindService(ServiceConnection conn) 
+该方法执行解除绑定的操作。
+
+扩展：AIDL、Messenger的使用

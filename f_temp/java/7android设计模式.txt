@@ -1,0 +1,21 @@
+单例模式：很多管理类。
+	系统服务级别的，
+	比如WindowsmanagerService、ActivityManagerService。（不是Service服务，哈哈）
+	LayoutInflater.
+	
+建造者模式：自定义Dialog; OkHttp的client、Request.
+	提示框 AlertDialog.Builder。
+
+工厂模式：接口编程--产生对象，BitmapFactory。
+	数据结构中，List、Set继承于Collection接口，Collection继承于Iterable接口。迭代器对象的使用。
+
+责任链模式：okhhtp的拦截器、view的触摸反馈机制。
+
+观察者模式：各种监听器listener。
+	广播的使用，订阅模式，也是观察者模式。
+
+代理模式：使用代理类做最后操作，mvp的m。
+
+适配器模式：ListView与adapter。把一个类的接口变换成客户端所期待的另一个接口，从而使原本因接口不匹配而无法在一起工作的两个类能够在一起工作。
+
+享元模式:Java中的常量池，线程池等,主要是为了重用对象。线程通信中的Message，每次我们获取Message时调用Message.obtain()其实就是从消息池中取出可重复使用的消息，避免产生大量的Message对象。

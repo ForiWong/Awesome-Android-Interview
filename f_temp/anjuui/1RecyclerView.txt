@@ -1,0 +1,80 @@
+1、纵向布局、横向布局、网格布局
+设置对应的布局管理器：线性布局、网格布局、瀑布流布局。
+LinearLayoutManager、GridLayoutManager、StaggeredGridLayoutManager。
+
+Adapter需要重写的三个方法：
+public abstract VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType);
+public abstract void onBindViewHolder(@NonNull VH viewHolder, int position);
+public abstract int getItemCount();
+
+需要定义一个ViewHolder内部类。在一些有不同的类型viewHolder时，要会进行继承、拓展viewHolder。
+public class GridViewHolder extends RecyclerView.ViewHolder;
+
+2、点击事件不断迭代优化
+（1）在Adapter里面直接对控件做点击事件
+holder.view.setOnClickListener(new View.OnClickListener() {
+	.....
+	//todo
+});
+（2）写接口，在Activity或Fragment上实现接口中定义的方法
+在adapter中定义接口Listener；
+在activity中实现接口，并给adapter设置listener；
+然后
+@Override
+public void onBindViewHolder(@NonNull XxxViewHolder holder, int position) {
+    holder.控件名.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mListener.onItemClick(content);
+        }
+    });
+}
+（3）复用点击事件监听器。
+复用OnClickListener对象，然后在onBindViewHolder()方法中通过setTag(position) 和getTag() 的方式，来传递点击事件的position给listener，listener保存在ViewHolder对象中。
+
+3、分组： 组名+内容在同一布局，通过逻辑判断显示/隐藏。
+顶部悬浮（吸顶）：分组逻辑 + 实现组名view的动画。
+
+4、拖动、滑动删除
+关键字：ItemTouchHelper
+		ItemTouchHelper.Callback callback = new DragItemTouchHelper(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(rcvDrag);
+		
+5、下拉刷新：
+布局中使用SwipeRefreshLayout包裹RecyclerView，SwipeRefreshLayout设置一个监听器即可。
+
+上拉加载：
+recyclerview.addOnScrollListener，在onScrollStateChanged里判断RecyclerView的状态是空闲时，同时是最后一个可见的item时才加载，在onScrolled里获取最后一个可见的item。
+
+6、双向滑动
+采用adapter内部创建的ViewHolder是一个列表recyclerView，列表嵌套。
+
+7、居中对齐snapHelper
+ 		LinearSnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(rcvSnapHelper);
+		
+8、性能优化
+（1）数据处理与视图绑定分离：一些耗时的，复杂是数据处理不要在bindViewHolder()这里进行。
+（2）获取数据的优化：分页加载远端数据、http请求接口缓存、局部刷新列表
+（3）布局优化
+（4）减少view对象的创建；当然其他的对象也尽量减少创建，尽量复用。
+（5）设置固定高度：如果item高度是固定的话，可以使用RecyclerView.setHasFixedSize(true);来避免requestLayout浪费资源。
+（6）共用RecycledViewPool：在嵌套RecyclerView中，如果子RecyclerView具有相同的adapter，那么可以设置RecyclerView.setRecycledViewPool(pool)来共用一个RecycledViewPool。
+（7）加大RecyclerView的缓存
+用空间换时间，来提高滚动的流畅性。
+recyclerView.setItemViewCacheSize(20);
+recyclerView.setDrawingCacheEnabled(true);
+recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+RecyclerView可以设置自己所需要的ViewHolder缓存数量，默认大小是2。cacheViews中的缓存只能position相同才可得用，且不会重新bindView，CacheViews满了后移除到RecyclerPool中，并重置ViewHolder，如果对于可能来回滑动的RecyclerView，把CacheViews的缓存数量设置大一些，可以减少bindView的时间，加快布局显示。
+注：此方法是拿空间换时间，要充分考虑应用内存问题，根据应用实际使用情况设置大小。
+
+（8）减少ItemView监听器的创建
+在onBindViewHolde方法中，减少逻辑判断，减少临时对象创建。例如：复用事件监听，在其方法外部创建监听，可以避免生成大量的临时变量。
+复用OnClickListener对象，然后在onBindViewHolder()方法中通过setTag(position) 和getTag() 的方式，来传递点击事件的position给listener，listener保存在ViewHolder对象中。
+
+（9）优化滑动操作
+设置RecyclerView.addOnScrollListener();来在滑动过程中停止加载的操作。这个停止了加载，怎么恢复请求呢，比如加载到一半，下滑不见了，然后上滑，又可见了。
+其实只需要重写一下RecycleView的onScrollStateChanged方法在里面约定好Gilde是否可以加载图片。
+
+（10）最重要还是列表中图片加载的优化

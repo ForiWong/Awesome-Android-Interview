@@ -1,0 +1,15 @@
+一个不需要在使用的对象A被其他对象B所持有，造成A无法被回收，内存单元不能释放而浪费。B对象的生命周期长，持有一个已经需要回收的A。
+
+1、构造单例的时候不使用 Activity 的引用；--> 使用Application上下文。
+
+2、静态引用时注意应用对象的置空或者少用静态引用；--> 不用时置null。
+
+3、非静态内部类引起的内存泄漏：Handler、Thread等。
+使用静态内部类+弱引用代替非静态内部类；（Handler、Thread、AsyncTask）比如，Handler在destroy中就将 mHandler的回调和发送的消息给移除掉。mHandler.removeCallbacksAndMessages(null);
+
+4、资源未关闭引起的内存泄漏；监听器未移除引起；无限循环动画。
+及时取消广播或者观察者注册；（注册相当于在一个集合内持有该对象。）
+
+5、耗时任务（Timer、TimerTask）、属性动画在 Activity 销毁时记得 cancel； 文件流、Cursor、数据库等资源及时关闭； 
+
+6、Activity 销毁时 WebView 的移除和销毁。（先将webview从父类移除，再destroy()）。

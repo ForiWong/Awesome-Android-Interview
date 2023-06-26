@@ -1,0 +1,20 @@
+1、理论上一个像素每次只绘制一次是最优的，由于重叠的布局被绘制多次，导致更多的CPU和GPU操作调用，如果耗时操作16.67ms，就会出现掉帧，即卡顿，这个不是好的体验。
+所以要减少过度绘制。过度绘制要么是有不必要的绘制，或者是设计时绘制了太多的内容。
+过度绘制的原因：太多的View叠加；复杂的层级叠加；更长的inflation时间。xml布局层级越复杂，节点越多，解析耗时越长。
+
+2、工具：Hierachy Viewer，Tracer for OpenGL、Show GPU overdraw。
+可以通过开发者选项，打开Show GPU Overdraw选项，观察UI上的Overdraw情况。显示：蓝色、淡绿、淡红，深红代表了4种不同程度的Overdraw的情况。
+
+3、优化：
+（1）优化的目的，就是让布局结构简单，减少层级。
+（2）选用合适的容器控件，善用RelativeLayout、ConstraintLayout。
+（3）使用布局标签include、merge、ViewStub。
+（4）merge标签是作为include标签的一个辅助来使用，减少引用布局文件产生的多余布局嵌套。
+（5）viewstub是view的子类。他是一个轻量级View，可以用来在程序运行时简单的填充布局文件。使用viewStub替换view.gone()；
+（6）去掉window的默认背景。
+（7）去掉控件不必要的背景。
+（8）慎用Alpha：假如对一个View做Alpha转化，需要先将View绘制出来，然后做Alpha转化，最后将转换后的效果绘制在界面上。
+（9）自定义控件中onDraw()的优化，减少绘制叠加。
+
+
+ 

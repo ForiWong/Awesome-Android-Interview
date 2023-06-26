@@ -1,0 +1,25 @@
+1、 MVC：将视图和数据分离，在WEB领域中应用的很广泛。 
+M对应Model，代表数据；
+V对应View，代表视图；
+C对应Controller，代表控制器。
+流程：用户通过界面组件进行操作，也就是View层，相应的动作会传递给控制器也就是Controller层，而Controller根据自己的业务逻辑去操作数据层也就是Model，而最终数据层的变化会同步更新到视图层。
+好处：分层思想，解耦；模块划分，分组开发，方便测试，高可扩展性。
+
+2、MVC在Android中的问题
+Activity中的layout.xml布局文件对应视图界面也就是View层。 数据库文件，Sharedprefrence,内存缓冲，磁盘缓冲等数据内容对应Model层。 而Controller控制层基本上也由Activity层面来进行。因为Android的特殊性，使得Activity对应了MVC中的V和C,同时担任两个角色，这显然就不符合软件设计原则的“单一职责”原则。随着项目的深入发展，很多逻辑很越来越复杂，Activity处理的东西也会越来越多，代码越来越臃肿。
+
+而实际上，我们从来没有在android项目中，在M层来完成对View层的更新操作。
+
+3、MVP
+View 对应于Activity，负责布局的绘制以及与用户交互；
+Model 依然是业务逻辑和实体模型；
+Presenter 负责完成View于Model间的交互、连接；
+MVP中Presenter取代了MVC中的Controller。
+MVC中Model、View、Controller之间相互发生通信，而MVP中Model与Presenter相互通信，View与Presenter相互通信，而Model与View之间没有通信。
+MVP的出现实际上就是将MVC进行升级，对应Android开发中就是帮助Activity解压。 
+
+4、MVP开发在Android中的基本流程 ，遵循面向接口编程。
+1） View层定义View.interface，用来定义View的行为。一般由Activity或者是Fragment来实现这个接口，它定义了View视图的各种变化，如设置Textview,加载对话框，更新进度条等。 
+2） Model层定义Modle.interface,这个是用来定义数据层发生变化时的通知接口。
+3）Presenter翻译的意思是主持人的意思。在这时Presenter就负责具体的业务逻辑，把请求数据送到Model，或者监听Model的数据变化，负责通过通知View层的视图变化。
+

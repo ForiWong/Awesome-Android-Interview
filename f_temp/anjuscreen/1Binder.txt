@@ -1,0 +1,51 @@
+1、Binder是android中一种特有的跨进程通信方式，你使用binder，就能拿到别的进程的服务。
+应用场景：媒体播放、音视频捕获、智能传感器（加速度、方位、温度、亮度等），甚至是startActivity、startService都用到了binder。
+存在一个Server： 提供服务，并负责一些管理。
+而APP应用程序作为一个client客户端：主要与这些server建立连接，就可以轻松的使用服务。
+
+2、AIDL是一种架构，能够为我们使用binder的时候，更加的轻便，简单。使用AIDL(android接口定义语言)，专门为binder设计的，是一种框架。
+IPC，进程间通信(Inter Process Communication)。
+Binder是一种进程间通信的方式。
+
+3、Linux 已经提供了管道、消息队列、共享内存和 Socket 等 IPC 机制。
+所以：提出需求-->  高效率、安全高的进程间通信。
+就是Binder了，是C/S 模型，只需要一次的内存copy。
+性能很高，仅次于内存共享，并且有PID、UID的校验。
+但是，Binder的优势：
+优势	描述
+性能	只需要一次数据拷贝，性能上仅次于共享内存
+稳定性	基于 C/S 架构，职责明确、架构清晰，因此稳定性好
+安全性	为每个 APP 分配 UID，进程的 UID 是鉴别进程身份的重要标志
+
+4、动态内核可加载模块 && 内存映射。
+Binder IPC 正是基于内存映射（mmap）来实现的，
+内存映射简单的讲就是将用户空间的一块内存区域映射到内核空间。映射关系建立后，用户对这块内存区域的修改可以直接反应到内核空间；反之内核空间对这段区域的修改也能直接反应到用户空间。
+
+5、IBinder 代表了跨进程通信的能力，接口
+IInterface 代表server提供的服务
+Binder java层的binder代理类 BinderProxy
+stub 编译生成的静态内部类，继承与Binder,又实现了IInterface
+
+6、Binder通信流程
+1）client打包数据
+2）发送数据client--> binder驱动
+3）发送数据binder驱动--> server
+4）server数据解包
+5）server执行目标方法
+6）返回结果server--> binder驱动
+7）返回结果binder驱动-->client
+
+7.编码实现跨进程调用
+（1）可以通过手写实现Binder IPC.
+（2）也可以借助AIDL实现Binder通信。
+1）客户端：定义一个aidl文件，里面是服务的接口。
+2）客户端：IDE同步之后，AS会自动生成一个aidl对应的java类
+3）服务端：同样执行上面的1、2步骤。然后创建一个Service。
+需要重写onBind()方法，返回一个IBinde实现对象，即ILoginInterface.Stub。
+再重写你提供的服务，即定义的接口。
+比如，这里 login() 内启动一个登录页面。
+4）客户端：在客户端启动服务（绑定状态的）
+a.绑定服务bindService();  //绑定的服务是服务端的服务。
+b.上面的绑定服务需要传一个参数服务连接：ServiceConnection对象。
+需要重写方法onServiceConnected，这里初始化ILoginInterface iLogin;（就是IBinder对象）
+c.用户点击事件就可以调用iLogin的方法，login()登录了，就开始跨进程服务了。

@@ -1,0 +1,140 @@
+1、setContentView(res_id)
+window --> PhoneWindow --> (内含)DecorView;
+DecorView(继承于FrameLayout)，是所有控件的根view；
+DecorView --> ContentParent --> 在这里填充我们的布局资源。
+	//mLayoutInflater.inflate(layoutResID, mContentParent);
+体现暴露接口（content）、抽象（theme、title <-- ViewStub、 FrameLayout）的思想。
+将通用的功能由系统进行处理，自定义化的暴露出来。
+
+2、通过Handler发送Message触发view的绘制流程。
+在自定义View的时候一般需要重写父类的onMeasure()、onLayout()、onDraw()三个方法，来完成视图的展示过程。当然，这三个暴露给开发者重写的方法只不过是整个绘制流程的冰山一角，更多复杂的幕后工作，都让系统给代劳了。
+一个完整的绘制流程包括measure、layout、draw三个步骤，其中：
+measure：测量。系统会先根据xml布局文件和代码中对控件属性的设置，来获取或者计算出每个View和ViewGrop的尺寸，并将这些尺寸保存下来。
+layout：布局。根据测量出的结果以及对应的参数，来确定每一个控件应该显示的位置。
+draw：绘制。确定好位置后，就将这些控件绘制到屏幕上。
+1）performMeasure()：从根节点向下遍历View树，完成所有ViewGroup和View的测量工作，计算出所有ViewGroup和View显示出来需要的高度和宽度；
+2）performLayout()：从根节点向下遍历View树，完成所有ViewGroup和View的布局计算工作，根据测量出来的宽高及自身属性，计算出所有ViewGroup和View显示在屏幕上的区域；
+3）performDraw()：从根节点向下遍历View树，完成所有ViewGroup和View的绘制工作，根据布局过程计算出的显示区域，将所有View的当前需显示的内容画到屏幕上。
+
+3、onMeasure();
+ViewGroup.LayoutParams 布局参数。
+MeasureSpec 从父布局传递给子view的布局要求。
+有三种可能的mode：UNSPECIFIED、EXACTLY、AT_MOST
+UNSPECIFIED：未指定尺寸模式。父布局没有对子view强加任何限制。它可以是任意想要的尺寸。
+EXACTLY：精确值模式。父布局决定了子view的准确尺寸。
+AT_MOST：最大值模式。子view可以一直大到指定的值。
+
+DecorView.measure --> View.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+--> 这个measure()是final修饰，不可重写 --> 暴露出onMeasure(widthMeasureSpec, heightMeasureSpec);
+--> 这个方法是可重写的。
+//系统将其定义为一个final方法，可见系统不希望整个测量流程框架被修改。
+
+一个view的实际测量工作是在被本方法所调用的onMeasure(int，int)方法中实现的。
+所以，只有onMeasure(int,int)可以并且必须被子类重写（笔者注：这里应该指的是，ViewGroup的子类必须重写该方法，才能绘制该容器内的子view。如果是自定义一个子控件extends View，那么并不是必须重写该方法，使用super.onMeasure()就可以。特例，TextView重写了该方法的。）
+
+参数widthMeasureSpec：父布局加入的水平空间要求；
+参数heightMeasureSpec：父布局加入的垂直空间要求。
+
+ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+    }
+	
+在onMeasure()中完成测量，并保存测量结果。
+返回view建议最小宽度值  +  父类传来的布局要求 -->即得测量后的值mMeasureWidth\mMeasureHeight set... 保存 -->View中的成员变量mMeasureWidth和mMeasureHeight --> 结束。
+
+DecorView的测量过程onMeasure() -->   遍历子view，childCount --> 子类测量完 --> 最后测量自己，结束。
+
+////view类型的控件
+TextView 重写onMeasure(); 不一样的测量逻辑，最后保存setMeasuredDimension(width, height);
+ImageView 也重写了。
+看了一下，系统中很多的的view都是要重写的。也有不重写的。
+
+////ViewGroup类型的控件
+如：LinearLayout
+在onMeasure 分竖向或亨向两个情况进行测量。
+先遍历子view完成测量，最后自己本身计算，保存常量值。
+
+总之，在onMeasure()中根据需求进行测量，或者在测量结束后，计算其他一些尺寸用到后续布局、绘制中。
+
+4、performLayout(lp, mWidth, mHeight); //LayoutParams
+--> ViewGroup.layout()
+--> View.layout();
+--> View.onLayout(changed, l, t, r, b);//这个是个空方法。
+//参数依次为：Left、Top、Right、Bottom四个点相对父布局的位置。
+
+ViewGroup的派生类（也就是容器类）应该重写onLayout方法，在重写的onLayout方法中，它们应该为每一子view调用layout方法进行布局。
+叶子view没有意义，只有ViewGroup才有用
+遍历所有的子view，完成每个view的布局。
+
+5、 performDraw()；
+-->  mView.draw(canvas);  //即DecorView
+-->  View.draw(canvas);
+--> 画背景；
+	画内容，即onDraw(canvas);
+	画子view,dispatchDraw();
+	画装饰，如滚动条、前景等。
+--> View.onDraw	
+类View中该方法是空实现。注释中说：实现该方法来做“画”工作。也就是说，具体的view需要重写该方法，来画自己想展示的东西，如文字，线条等。
+
+6、自定义控件除了测量-布局-绘制三大方法，还要注意构造函数、属性配置。
+           View     ViewGroup
+onMeasure  重写      重写      遍历子类测量，最后自己测量（存储是这样的）
+onLayout   不重写    重写      父类对子类的布局，自己的由自己的父类完成布局。
+onDraw    重写      不重写    先画自己，再画子类。
+
+7、Paint：画笔，要怎么画的设置，样式、颜色等信息，还可以设置渲染器、滤镜、图层混合模式。
+Canvas：画布，要画什么的操作，可以绘制几何图形、文本、路径和位图等；还有，画布的变换，状态保存和恢复。
+
+8、触摸反馈的本质：用户操作屏幕点击、滑动、长按等  -->  一序列触摸事件 -->  触摸算法（解读出是什么操作，给出对应的反馈。）
+
+ACTION_DOWN、ACTION_MOVE、ACTION_UP、ACTION_CANCEL。
+
+通过View的onTouchEvent(MptionEvent event)来处理事件，如果消费该事件就返回true。
+
+事件拦截机制：为解决view叠加对事件的响应的，在每一事件到达view的onTouchEvent()之前，有一个过程：从activity的根view一级一级去询问你要不要拦截这组事件？调用 ViewGroup.onInterceptTouchEvent()。
+
+onInterceptTouchEvent();这个方法可以整个事件流中，对每个事件进行监听（这点和onTouchEvent()是不同的）。
+
+9、自定义控件步骤：
+1）定义declare-styleable，添加到attr.xml；
+使用TypedArray获取自定义属性：
+TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CircularAttrsView);
+…………
+typedArray.recycle();//一个同步的对象池，注意回收。
+
+2）构造函数
+有三个参数的构造函数中第三个参数是默认的Style，
+调用init();初始化画笔、画布等.
+a:代码中直接实例化自定义控件，会调用第一个构造函数;
+b:xml布局使用自定义控件,会调用第二个构造函数;
+public MView(Context context) {
+    this(context,null);
+}
+
+public MView(Context context, @Nullable AttributeSet attrs) {
+    this(context, attrs,0);
+}
+
+3）onMeasure(int widthMeasureSpec, int heightMeasureSpec);
+计算绘制的尺寸、位置
+
+4）onLayout()
+设置视图在屏幕中显示的位置，onLayout一般只会在自定义ViewGroup中才会使用
+
+5）onDraw(Canvas canvas);
+进行绘制过程。如果自定义ViewGroup这个函数则不需要重载。
+
+6）计算一些自定义控件需要的值 onSizeChange()
+onSizeChange() 方法在view第一次被指定了大小值、或者view的大小发生改变时会被调用。所以一般用来计算一些位置和与view的size有关的值。
+
+7）优化你的自定义View，下面是官网给出的优化建议：
+a.避免不必要的代码;
+b.在onDraw()方法中不应该有会导致垃圾回收的代码。 
+c.尽可能少让onDraw()方法调用，大多数onDraw()方法调用都是手动调用了invalidate()的结果，所以如果不是必须，不要调用invalidate()方法。
+
+10、自定义控件一般分类：
+（1）继承view：自绘view、含动画view，一般是没有类似的实现： 百分比的控件；
+	继承已有的view，进行扩展、重写： 比如显示头像的圆形、矩形圆角imageView；
+（2）容器控件子类：重写触摸事件、分发、拦截、处理触摸或滑动冲突等；
+（3）组合控件，用于复用，标题栏、可清除的editText等。

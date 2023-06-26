@@ -1,0 +1,16 @@
+1、Android中的activity全都归属于task管理(task是一个具有栈结构的容器),task是多个activity的集合,android默认情况会为每个App维持一个task来存放app的所有activity(当然这只是默认情况),task的默认name为该app的packagename(包名).
+2、生命周期 onCreate() -> onStart() -> onResume()
+	onPause() -> onStop() -> onDestroy()
+	onReStart()
+	onSaveInstanceState()
+	onRestoreInstanceState()
+
+3、开始时，A被实例化，执行的回调有A:onCreate -> A:onStart -> A:onResume。
+当用户点击A中按钮来到B时，假设B全部遮挡住了A，将依次执行A:onPause -> B:onCreate -> B:onStart -> B:onResume -> A:onStop。
+此时如果点击Back键，将依次执行B:onPause -> A:onRestart -> A:onStart -> A:onResume -> B:onStop -> B:onDestroy。
+
+4、四种启动模式:
+标准模式standard、栈顶复用模式singleTop、
+栈内复用模式（全栈单例）singleTask、全局唯一模式（全系统单例）singleInstance。
+
+	

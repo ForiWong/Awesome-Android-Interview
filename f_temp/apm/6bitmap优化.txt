@@ -1,0 +1,43 @@
+1、Bitmap必须要正确使用加载，否则容易OOM。
+bitmap是内存使用的 “大户”，如何更好的使用 bitmap，减少其对 App内存的使用，是我们开发中不可回避的问题。
+
+2、Bitmap内存占用 = 像素数据总大小=横向像素数量 x 纵向像素数量 x 每个像素的字节大小
+Bitmap.Config 占用字节大小（byte） 说明
+ALPHA_8 (1) 	1 	单透明通道 
+RGB_565 (3)	 2 	简易RGB色调 
+ARGB_4444 (4) 	4 	已废弃 
+ARGB_8888 (5) 	4	 24位真彩色 
+RGBA_F16 (6) 	8 	Android 8.0 新增（更丰富的色彩表现HDR） 
+HARDWARE (7) 	Special 	Android 8.0 新增 （Bitmap直接存储在graphic memory）
+这个是在内存做展的大小。在磁盘空间就不一样了，占的磁盘内存大小跟图片资源的文件格式有关系。
+
+3、通过BitmapFactory类提供的4类方法：分别从文件系统，资源，输入流和字节数组中加载出一个 Bitmap 对象。
+
+4、BitmapFactory.Options的参数
+加载图片的选项参数
+inSampleSize参数(采样率)
+上述4类方法都支持BitmapFactory.Options参数，而Bitmap的按一定采样率进行缩放就是通过 BitmapFactory.Options参数实现的，主要用到了 inSampleSize参数，即采样率。
+通过对 inSampleSize 的设置，对图片的像素的高和款进行缩放。
+
+5、高效加载Bitmap的流程
+1）将BitmapFactory.Options的 inJustDecodeBounds 参数设置为true并加载图片信息。
+2）从BitmapFactory.Options中取出图片的原始宽高信息，他们对应于outWidth 和 outHeight参数。
+3）根据采样率的规则并结合目标View 的所需大小计算出采样率 inSampleSize.
+4）将BitmapFactory.Options 的inJustDecodeBounds 参数设为 false,然后重新加载图片。
+
+6、使用低色彩的解析模式，如RGB565，减少单个像素的字节大小（低的颜色位数）；
+资源文件合理放置，高分辨率图片可以放到高分辨率目录下；
+图片缩小，减少尺寸。（设置采样率缩放。）
+
+7、内存大小计算例子
+（1）首先准备了一张800×600分辨率的jpg图片，大小约135k，放置于res/drawable文件夹。
+（2）并将其加载到一个200dp×300dp大小的ImageView中，使用BitmapFactory。
+Bitmap bitmapDecode = BitmapFactory.decodeResource(getResources(), resId);
+imageView.setImageBitmap(bitmapDecode);
+（3）结果：width2400 * height1800 config:ARGB_8888
+内存：17280000 byte= 2400 * 1800 * 4，差不多17MB
+设备的480dpi 设备的分辨率
+
+因为图片放在默认的drawable文件夹，系统默认其的分辨率为160dpi.
+缩放比：480/160 = 3
+其实是，800 * 3 * 600 * 3 * 4 

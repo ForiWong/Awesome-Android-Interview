@@ -1,0 +1,31 @@
+1、ContentProvider即内容提供者，是 Android 四大组件之一，进程间 进行数据交互 & 共享，即跨进程通信。
+它本质上还是中间者的角色，即搬运工，真正存储或操作数据的数据源还是数据库、文件或者sp或者网络等。
+ContentProvider的底层是采用 Android中的Binder机制。
+
+2、外界进程通过 URI 找到对应的ContentProvider & 其中的数据，再进行数据操作。
+定义：Uniform Resource Identifier，即统一资源标识符
+作用：唯一标识 ContentProvider & 其中的数据  
+Uri uri = Uri.parse("content://com.carson.provider/User/1") 
+
+3、使用步骤
+(1)创建数据库类  class DBHelper extends SQLiteOpenHelper 重写onCreate()、onUpgrade();
+(2)自定义 ContentProvider 类 class MyProvider extends ContentProvider 
+重写方法：onCreate()、insert()、query()、update()、delete()、getType(Uri uri) 
+//在ContentProvider. onCreate()创建时对数据库进行初始化,运行在主线程，故不能做耗时操作。
+(3)AndroidManifest.xml注册创建的 ContentProvider类
+(4)进程内访问 ContentProvider的数据，通过ContentResolver。
+        ContentResolver resolver =  getContentResolver();
+        resolver.insert(uri_user,values);//ContentValues 
+
+4、安全性：ContentProvider为应用间的数据交互提供了一个安全的环境：允许把自己的应用数据根据需求开放给其他应用 进行 增、删、改、查，而不用担心因为直接开放数据库权限而带来的安全问题。
+解耦：对比于其他对外共享数据的方式，数据访问方式会因数据存储的方式而不同。采用ContentProvider方式，其 解耦了底层数据的存储方式。
+
+5、ContentProvider通过uri来标识其它应用要访问的数据，通过ContentResolver的增、删、改、查方法实现对共享数据的操作。还可以通过注册ContentObserver来监听数据是否发生了变化来对应的刷新页面。
+
+6、android ContentProvider onCreate()在 Application onCreate()之前执行。
+所以，这个是系统执行的，有些第三方库就是通过在这里进行初始化的。
+Application.onCreate 、ContentProvider.onCreate 、 Activity.onCreate 的调用顺序是怎样的？
+Application.attachBaseContext();
+ContentProvider.onCreate();
+Application.onCreate();
+Activity.onCreate();

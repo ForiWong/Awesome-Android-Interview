@@ -1,0 +1,50 @@
+Android系统提供了四种存储数据方式。分别为：SharePreference、SQLite、Content Provider和File。但由于Android系统中，数据基本是私有的，都是存放于”data/data”程序包名目录下，所以要实现数据共享，正确方式是使用Content Provider。
+
+1、SharedPreference
+特点：保存少量数据，支持字符串、基础类型。其本质就是一个xml文件，数据以键值对的形式保存，常用于存储较简单的参数设置。默认存储路径：/data/data/<PackageName>/shared_prefs。
+操作模式：MODE_PRIVATE（默认）：只有当前的应用程序才能对文件进行读写； Context.MODE_WORLD_READABLE:  指定该SharedPreferences数据能被其他应用程序读，但不能写；
+Context.MODE_WORLD_WRITEABLE:  指定该SharedPreferences数据能被其他应用程序读，写。
+A.获取数据
+SharedPreferences read = getSharedPreferences("lock", MODE_WORLD_READABLE);
+String value = read.getString("code", "");
+
+B.存储数据
+•调用SharedPreferences对象的edit()方法获取一个SharedPreferences.Editor对象
+•向Editor对象中添加数据putBoolean、putString等
+•调用commit()方法提交数据
+
+C.commit与apply
+commit 会在调用者线程同步执行写文件，返回写入结果;
+apply 将写文件的操作异步执行，没有返回值。
+可以根据具体情况选择性使用，推荐使用 apply。
+
+2、File： 
+Context提供了两个方法来打开数据文件里的文件IO流 FileInputStream openFileInput(String name); FileOutputStream(String name , int mode),这两个方法第一个参数 用于指定文件名，第二个参数指定打开文件的模式。
+MODE_PRIVATE：为默认操作模式，代表该文件是私有数据，只能被应用本身访问，在该模式下，写入的内容会覆盖原文件的内容。
+MODE_APPEND：模式会检查文件是否存在，存在就往文件追加内容，否则就创建新文件。
+MODE_WORLD_READABLE：表示当前文件可以被其他应用读取；
+MODE_WORLD_WRITEABLE：表示当前文件可以被其他应用写入。
+常用于存储大数量的数据，但是缺点是更新数据将是一件困难的事情。
+默认存储路径：/data/data/<PackageName>/files。
+
+3、SQLite：SQLite是一个轻量级的数据库，支持基本的SQL语法，是常被采用的一种数据存储方式。Android为此数据库提供了一个名为SQLiteDatabase的类，封装了一些操作数据库的api。
+第三方框架：GreenDao 与 Realm。
+
+SQLiteOpenHelper是SQLiteDatabase的一个帮助类，用来管理数据库的创建和版本的更新。一般是建立一个类继承它，并实现它的onCreate和onUpgrade方法。
+onCreate(SQLiteDatabase db)；创建数据库时调用；
+onUpgrade(SQLiteDatabase db,int oldVersion , int newVersion)；	版本更新时调用。根据不同的版本，不同的更新处理逻辑。注意：假如是版本比较多的情况，upGrade()方法体就会显得比较庞大。
+事务（Transaction）是由一系列对系统中数据进行访问与更新的操作所组成的一个程序执行逻辑单元。
+事务具有4个基本特征，分别是：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Duration），简称ACID。
+
+4、ContentProvider
+ContentProvider是安卓平台中，在不同应用程序之间实现数据共享的一种机制。一个应用程序如果需要让别的程序可以操作自己的数据，即可采用这种机制。并且此种方式忽略了底层的数据存储实现，ContentProvider提供了一种统一的通过Uri实现数据操作的方式。其步骤为：
+a. 在当前应用程序中定义一个ContentProvider。
+b. 在当前应用程序的AndroidManifest.xml中注册此ContentProvider
+c. 其他应用程序通过ContentResolver和Uri来获取此ContentProvider的数据。
+ContentResolver提供了诸如insert(), delete(),query()和update()之类的方法。用于实现对ContentProvider中数据的存取操作。
+例如音频，视频，图片和通讯录，一般都可以采用此种方式进行存储。
+每个ContentProvider都会对外提供一个公共的URI（包装成Uri对象），如果应用程序有数据需要共享时，就需要使用Content Provider为这些数据定义一个URI，然后其他的应用程序就通过ContentProvider传入
+这个URI来对数据进行操作。
+URI由3个部分组成:"content://"、数据的路径、标识ID(可选)。
+
+
